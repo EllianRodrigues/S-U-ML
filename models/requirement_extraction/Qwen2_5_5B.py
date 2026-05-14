@@ -24,7 +24,7 @@ class Qwen25_5B:
     Performs extraction of requirements and use cases from text.
     """
 
-    def __init__(self, model_name: str = "Qwen/Qwen2.5-1.5B", device: str = None):
+    def __init__(self, model_name: str = "Qwen/Qwen2.5-1.5B-Instruct", device: str = None):
         """
         Initializes the Qwen 2.5 5B model.
 
@@ -69,37 +69,22 @@ class Qwen25_5B:
             outputs = self.model.generate(
                 **inputs,
                 max_new_tokens=max_length,
-                do_sample=False,
+                do_sample=True,
                 num_beams=4,
+                temperature=0.3,
                 early_stopping=True,
                 pad_token_id=self.tokenizer.eos_token_id,
             )
 
-            # extract only generated part
             generated_tokens = outputs[0][inputs["input_ids"].shape[1]:]
+            cleaned = self.tokenizer.decode(generated_tokens, skip_special_tokens=True).strip()
 
-            if isinstance(generated_tokens, torch.Tensor):
-                token_list = generated_tokens.cpu().tolist()
-            else:
-                token_list = generated_tokens
-
-            raw = self.tokenizer.decode(token_list, skip_special_tokens=True).strip()
-
-            # Post-process to remove echoed prompt, role labels and keep final use case
-            cleaned = raw
-            # If model repeated the prompt or role labels, try to split at the last 'Use Case:' marker
             if 'Use Case:' in cleaned:
                 cleaned = cleaned.split('Use Case:')[-1].strip()
 
-            # Remove common role labels and SystemDescription echoes
             cleaned = re.sub(r'^(assistant|user|system)\s*[:\-\n\s]*', '', cleaned, flags=re.I)
             cleaned = re.sub(r'System Description:\s*', '', cleaned, flags=re.I)
             cleaned = re.sub(r'Description:\s*', '', cleaned, flags=re.I)
-
-            # Trim to first sentence if multiple
-            if '.' in cleaned:
-                cleaned = cleaned.split('.')[-1].strip() if len(cleaned.split('.')) > 1 and cleaned.split('.')[-1].strip() == '' else cleaned.split('.')[0].strip()
-
 
             return cleaned
 

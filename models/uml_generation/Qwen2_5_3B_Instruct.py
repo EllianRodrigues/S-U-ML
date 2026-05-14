@@ -59,28 +59,26 @@ class QwenInstruct:
         inputs = self.tokenizer(prompt, return_tensors="pt", truncation=True, max_length=1024)
         inputs = {k: v.to(self.device) for k, v in inputs.items()}
 
+        input_length = inputs["input_ids"].shape[1]
+
         # Generation: beam search for more stable output
         with torch.no_grad():
             outputs = self.model.generate(
-                **inputs,
-                max_new_tokens=max_new_tokens,
-                do_sample=False,
-                temperature=None,
-                top_p=None,
-                top_k=None,
-                num_beams=4,
-                early_stopping=True,
-                repetition_penalty=1.1,
-                no_repeat_ngram_size=3,
-                pad_token_id=self.tokenizer.eos_token_id,
-            )
+            **inputs,
+            max_new_tokens=1024,
+            do_sample=True,
+            temperature=0.3,
+            top_p=0.8,
+            pad_token_id=self.tokenizer.eos_token_id,
+        )
 
-        result = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
-
-        # If model echoes the prompt, strip it
-        if result.startswith(prompt):
-            result = result[len(prompt) :]
-
+        # --- CÓDIGO NOVO DE EXTRAÇÃO ---
+        # Fatiamos o tensor de output para pegar APENAS os tokens novos gerados
+        generated_tokens = outputs[0][input_length:]
+        result = self.tokenizer.decode(generated_tokens, skip_special_tokens=True)
+        
+        # (Você pode apagar o bloco if result.startswith(prompt) pois ele não é mais necessário)
+        
         cleaned = self._extract_or_build_plantuml(result, text)
 
         # If the model returned an instruction instead of a diagram, retry once with sampling
