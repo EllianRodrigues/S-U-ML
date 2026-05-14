@@ -1,4 +1,4 @@
-## A.M.A.S.P.P.U.T: A Multi-Agent Semantic Preservation Pipeline for UML Transformation
+## S(u)LM: Evaluation of Semantic Preservation in Multi-Agent Pipelines with Small Language Models for UML
 
 ## Environment setup (Conda recommended)
 
@@ -13,3 +13,4 @@ pip install -r requirements.txt
 
 # Install PyTorch with CUDA 12.1
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+
