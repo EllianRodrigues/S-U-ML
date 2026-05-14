@@ -9,6 +9,7 @@ If you have **CUDA** available on your machine (NVIDIA GPU), the commands below 
 # Create environment with Python 3.10
 conda create -n amaspput python=3.10 -y
 conda activate amaspput
+pip install -r requirements.txt
 
 # Install PyTorch with CUDA 12.1
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
