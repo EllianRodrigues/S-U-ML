@@ -1,5 +1,7 @@
 import logging
 import os
+import json
+from pathlib import Path
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from transformers import logging as transformers_logging
@@ -31,6 +33,7 @@ class Qwen25_5B:
         """
         self.model_name = model_name
         self.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
+        self.prompt_template = self._load_prompt_template()
 
         print(f"Loading model {model_name}...")
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
@@ -56,32 +59,14 @@ class Qwen25_5B:
         if not text or not isinstance(text, str):
             raise ValueError("Invalid input text")
 
-        prompt = f"""
-        You are a software requirements analyst.
-
-        Task:
-        Extract the main use case from the system description.
-
-        Rules:
-        - Return only the use case.
-        - Be concise and objective.
-        - Use active voice.
-        - Do not explain your reasoning.
-        - Do not add introductions or comments.
-        - Output in a single sentence.
-
-        System Description:
-        {text}
-
-        Main Use Case:
-        """
+        prompt = self.prompt_template.format(text=text)
 
         inputs = self.tokenizer(prompt, return_tensors="pt").to(self.device)
 
         with torch.no_grad():
             outputs = self.model.generate(
                 **inputs,
-                max_length=128,
+                max_length=max_length,
                 temperature=0.7,
                 top_p=0.9,
                 do_sample=True,
@@ -92,6 +77,25 @@ class Qwen25_5B:
         use_case = result.replace(prompt, "").strip()
 
         return use_case
+    
+    def _load_prompt_template(self) -> str:
+        """
+        Loads prompt template from prompts/use_case.json.
+
+        Returns:
+            str: Prompt template with {text} placeholder.
+        """
+        prompt_path = Path(__file__).resolve().parents[2] / "prompts" / "use_case.json"
+        with prompt_path.open("r", encoding="utf-8") as file:
+            payload = json.load(file)
+
+        prompt = payload.get("extract_use_case_prompt", "").strip()
+        if not prompt:
+            raise ValueError("Missing 'extract_use_case_prompt' in prompts/use_case.json")
+        if "{text}" not in prompt:
+            raise ValueError("Prompt template must contain '{text}' placeholder")
+
+        return prompt
 
     def close(self):
         """
