@@ -1,3 +1,3 @@
 {
-	"extract_use_case_prompt": "You are a software requirements analyst.\n\nTask:\nExtract the main use case from the system description.\n\nRules:\n- Return only the use case.\n- Be concise and objective.\n- Use active voice.\n- Do not explain your reasoning.\n- Do not add introductions or comments.\n- Output in a single sentence.\n\nSystem Description:\n{text}\n\nMain Use Case:"
+  "extract_use_case_prompt": "You are an information extraction system specialized in software requirements.\n\nTask:\nExtract ONE concise use-case sentence from the system description.\n\nStrict Rules:\n- Return ONLY one sentence.\n- Maximum 20 words.\n- Use active voice.\n- Preserve the original meaning.\n- Do NOT invent details.\n- Do NOT explain.\n- Do NOT add comments or formatting.\n- Focus only on the system's primary functionality.\n\n<SystemDescription>\n{text}\n</SystemDescription>\n\nUse Case:"
 }

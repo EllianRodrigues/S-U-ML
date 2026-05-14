@@ -3,6 +3,7 @@ import os
 import json
 from pathlib import Path
 import torch
+import re
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from transformers import logging as transformers_logging
 
@@ -59,24 +60,65 @@ class Qwen25_5B:
         if not text or not isinstance(text, str):
             raise ValueError("Invalid input text")
 
-        prompt = self.prompt_template.format(text=text)
+        prompt = self._build_chat_prompt(text)
 
-        inputs = self.tokenizer(prompt, return_tensors="pt").to(self.device)
+        inputs = self.tokenizer(prompt, return_tensors="pt", truncation=True, max_length=1024)
+        inputs = {k: v.to(self.device) for k, v in inputs.items()}
 
         with torch.no_grad():
             outputs = self.model.generate(
                 **inputs,
-                max_length=max_length,
-                temperature=0.7,
-                top_p=0.9,
-                do_sample=True,
+                max_new_tokens=max_length,
+                do_sample=False,
+                num_beams=4,
+                early_stopping=True,
                 pad_token_id=self.tokenizer.eos_token_id,
             )
 
-        result = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
-        use_case = result.replace(prompt, "").strip()
+            # extract only generated part
+            generated_tokens = outputs[0][inputs["input_ids"].shape[1]:]
+
+            if isinstance(generated_tokens, torch.Tensor):
+                token_list = generated_tokens.cpu().tolist()
+            else:
+                token_list = generated_tokens
+
+            raw = self.tokenizer.decode(token_list, skip_special_tokens=True).strip()
+
+            # Post-process to remove echoed prompt, role labels and keep final use case
+            cleaned = raw
+            # If model repeated the prompt or role labels, try to split at the last 'Use Case:' marker
+            if 'Use Case:' in cleaned:
+                cleaned = cleaned.split('Use Case:')[-1].strip()
+
+            # Remove common role labels and SystemDescription echoes
+            cleaned = re.sub(r'^(assistant|user|system)\s*[:\-\n\s]*', '', cleaned, flags=re.I)
+            cleaned = re.sub(r'System Description:\s*', '', cleaned, flags=re.I)
+            cleaned = re.sub(r'Description:\s*', '', cleaned, flags=re.I)
+
+            # Trim to first sentence if multiple
+            if '.' in cleaned:
+                cleaned = cleaned.split('.')[-1].strip() if len(cleaned.split('.')) > 1 and cleaned.split('.')[-1].strip() == '' else cleaned.split('.')[0].strip()
+
+
+            return cleaned
 
         return use_case
+
+    def _build_chat_prompt(self, text: str) -> str:
+        prompt_head, prompt_tail = self.prompt_template.split("{text}", 1)
+        system_prompt = prompt_head.split("System Description:", 1)[0].strip()
+        user_prompt = f"System Description:\n{text.strip()}{prompt_tail}"
+
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt.strip()},
+        ]
+
+        if hasattr(self.tokenizer, "apply_chat_template"):
+            return self.tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+
+        return f"System: {system_prompt}\nUser: {user_prompt.strip()}\nAssistant:"
     
     def _load_prompt_template(self) -> str:
         """
