@@ -1,4 +1,4 @@
-## S(u)LM: Evaluation of Semantic Preservation in Multi-Agent Pipelines with Small Language Models for UML
+## S(U)LM: Evaluation of Semantic Preservation in Multi-Agent Pipelines with Small Language Models for UML
 
 ## Environment setup (Conda recommended)
 
