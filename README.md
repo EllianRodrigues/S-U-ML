@@ -1,5 +1,5 @@
 
-## S(U)LM: Evaluation of Semantic Preservation in Multi-Agent Pipelines for UML
+## S-U-LM: Evaluation of Semantic Preservation in Multi-Agent Pipelines for UML
 
 This project evaluates semantic preservation across small language models in a multi-agent pipeline that generates and interprets UML.
 
