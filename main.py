@@ -1,6 +1,5 @@
 from models.requirement_extraction.Qwen2_5_5B import Qwen25_5B
 
-
 def main():
 
     model = Qwen25_5B()
@@ -14,11 +13,6 @@ def main():
         print(f"Extracted Use Case:\n{use_case}")
     except Exception as e:
         print(f"Error extracting use case: {e}")
-
-    # Close the model and free memory
-    model.close()
-    print("\nTest completed!")
-
 
 if __name__ == "__main__":
     main()

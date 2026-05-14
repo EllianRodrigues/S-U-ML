@@ -1,6 +1,19 @@
+import logging
+import os
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import logging as transformers_logging
 
+# Remove warnings Hugging Face
+os.environ["HF_HUB_DISABLE_SYMLINKS_WARNING"] = "1"
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
+
+# Remove logs transformers
+transformers_logging.set_verbosity_error()
+
+# Remove logs gerais
+logging.getLogger("transformers").setLevel(logging.ERROR)
+logging.getLogger("huggingface_hub").setLevel(logging.ERROR)
 
 class Qwen25_5B:
     """
@@ -23,7 +36,7 @@ class Qwen25_5B:
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.model = AutoModelForCausalLM.from_pretrained(
             model_name,
-            torch_dtype=torch.float16 if self.device == "cuda" else torch.float32,
+            dtype=torch.float16 if self.device == "cuda" else torch.float32,
             device_map=self.device,
         )
         self.model.eval()
@@ -43,25 +56,39 @@ class Qwen25_5B:
         if not text or not isinstance(text, str):
             raise ValueError("Invalid input text")
 
-        prompt = f"""Analyze the following text and extract the main use case(s):
+        prompt = f"""
+        You are a software requirements analyst.
 
-Text: {text}
+        Task:
+        Extract the main use case from the system description.
 
-Use Case:"""
+        Rules:
+        - Return only the use case.
+        - Be concise and objective.
+        - Use active voice.
+        - Do not explain your reasoning.
+        - Do not add introductions or comments.
+        - Output in a single sentence.
+
+        System Description:
+        {text}
+
+        Main Use Case:
+        """
 
         inputs = self.tokenizer(prompt, return_tensors="pt").to(self.device)
 
         with torch.no_grad():
             outputs = self.model.generate(
                 **inputs,
-                max_length=max_length,
+                max_length=128,
                 temperature=0.7,
                 top_p=0.9,
                 do_sample=True,
+                pad_token_id=self.tokenizer.eos_token_id,
             )
 
         result = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
-        # Remove the prompt from response
         use_case = result.replace(prompt, "").strip()
 
         return use_case
@@ -78,7 +105,7 @@ Use Case:"""
         if self.device == "cuda":
             torch.cuda.empty_cache()
 
-        print("Model unloaded and memory freed")
+        print("\nModel unloaded and memory freed")
 
     def __del__(self):
         """Ensures resources are freed when the object is destroyed."""
