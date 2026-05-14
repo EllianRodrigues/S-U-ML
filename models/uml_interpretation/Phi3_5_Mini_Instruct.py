@@ -27,6 +27,7 @@ class Phi35MiniInstruct:
         self.model = AutoModelForCausalLM.from_pretrained(
             model_name,
             torch_dtype=torch.float16 if self.device == "cuda" else torch.float32,
+            device_map=self.device, 
         )
 
         self.model.to(self.device)
@@ -37,13 +38,13 @@ class Phi35MiniInstruct:
         print(f"Model loaded successfully on device: {self.device}")
 
     def _load_prompt_template(self) -> str:
-        prompt_path = Path(__file__).resolve().parents[2] / "prompts" / "uml_to_use_case.json"
+        prompt_path = Path(__file__).resolve().parents[2] / "prompts" / "uml_to_text.json"
         with prompt_path.open("r", encoding="utf-8") as fh:
             payload = json.load(fh)
 
         prompt = payload.get("prompt", "").strip()
         if not prompt:
-            raise ValueError("Missing 'prompt' in prompts/uml_to_use_case.json")
+            raise ValueError("Missing 'prompt' in prompts/uml_to_text.json")
         if "{text}" not in prompt:
             raise ValueError("Prompt template must contain '{text}' placeholder")
         return prompt
@@ -63,44 +64,36 @@ class Phi35MiniInstruct:
 
         return f"{system_prompt}\n\nUser: {user_prompt.strip()}\nAssistant:"
 
-    def generate_use_case(self, text: str, max_new_tokens: int = 256) -> str:
-        if not text or not isinstance(text, str):
-            raise ValueError("Invalid input text")
+    def generate_uml_to_text(self, text: str, max_new_tokens: int = 256) -> str:
+            if not text or not isinstance(text, str):
+                raise ValueError("Invalid input text")
 
-        prompt = self._build_chat_prompt(text)
+            prompt = self._build_chat_prompt(text)
 
-        inputs = self.tokenizer(prompt, return_tensors="pt", truncation=True, max_length=1024)
-        inputs = {k: v.to(self.device) for k, v in inputs.items()}
+            inputs = self.tokenizer(prompt, return_tensors="pt", truncation=True, max_length=1024)
+            inputs = {k: v.to(self.device) for k, v in inputs.items()}
 
-        with torch.no_grad():
-            outputs = self.model.generate(
-                **inputs,
-                max_new_tokens=max_new_tokens,
-                do_sample=False,
-                temperature=None,
-                top_p=None,
-                top_k=None,
-                num_beams=4,
-                early_stopping=True,
-                repetition_penalty=1.1,
-                no_repeat_ngram_size=3,
-                pad_token_id=self.tokenizer.eos_token_id,
-            )
+            with torch.no_grad():
+                outputs = self.model.generate(
+                    **inputs,
+                    max_new_tokens=max_new_tokens,
+                    do_sample=False, 
+                    pad_token_id=self.tokenizer.eos_token_id,
+                )
 
-        generated_tokens = outputs[0][inputs["input_ids"].shape[1]:]
+            # Fatiamos para pegar apenas os tokens gerados
+            generated_tokens = outputs[0][inputs["input_ids"].shape[1]:]
 
-        result = self.tokenizer.decode(
-            generated_tokens,
-            skip_special_tokens=True
-        ).strip()
-        
-        if result.startswith(prompt):
-            result = result[len(prompt) :]
+            result = self.tokenizer.decode(
+                generated_tokens,
+                skip_special_tokens=True
+            ).strip()
+            
+            
+            return result
 
-        return result.strip()
-
-    def generateUML(self, text: str, max_new_tokens: int = 256) -> str:
-        return self.generate_use_case(text, max_new_tokens=max_new_tokens)
+    def generateUML(self, text: str, max_new_tokens: int = 64) -> str:
+        return self.generate_uml_to_text(text, max_new_tokens=max_new_tokens)
 
     def close(self):
         if hasattr(self, "model"):
