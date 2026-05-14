@@ -2,3 +2,4 @@ torch>=2.0.0
 transformers==4.45.2
 accelerate>=0.24.0
 tomli
+sentence-transformers>=3.0.0
