@@ -71,14 +71,10 @@ class QwenInstruct:
             top_p=0.8,
             pad_token_id=self.tokenizer.eos_token_id,
         )
-
-        # --- CÓDIGO NOVO DE EXTRAÇÃO ---
-        # Fatiamos o tensor de output para pegar APENAS os tokens novos gerados
+        
         generated_tokens = outputs[0][input_length:]
         result = self.tokenizer.decode(generated_tokens, skip_special_tokens=True)
-        
-        # (Você pode apagar o bloco if result.startswith(prompt) pois ele não é mais necessário)
-        
+                
         cleaned = self._extract_or_build_plantuml(result, text)
 
         # If the model returned an instruction instead of a diagram, retry once with sampling
