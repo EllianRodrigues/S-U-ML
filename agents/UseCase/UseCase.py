@@ -5,6 +5,7 @@ with open("./config.toml", "rb") as file:
     text = tomllib.load(file)["use_case"]["input_text"]
 
 def run_use_case(text: str = text, model_cls=Qwen25_5B):
+	
 	model = model_cls()
 
 	print(f"\nInput Text:\n{text}\n")

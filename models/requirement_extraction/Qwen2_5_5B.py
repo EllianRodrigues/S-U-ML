@@ -39,7 +39,7 @@ class Qwen25_5B:
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.model = AutoModelForCausalLM.from_pretrained(
             model_name,
-            dtype=torch.float16 if self.device == "cuda" else torch.float32,
+            torch_dtype=torch.float16 if self.device == "cuda" else torch.float32,
             device_map=self.device,
         )
         self.model.eval()
@@ -109,7 +109,7 @@ class Qwen25_5B:
         if self.device == "cuda":
             torch.cuda.empty_cache()
 
-        print("\nModel unloaded and memory freed")
+        print("\nModel Qwen2_5_5b unloaded and memory freed")
 
     def __del__(self):
         """Ensures resources are freed when the object is destroyed."""
