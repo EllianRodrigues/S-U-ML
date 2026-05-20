@@ -3,8 +3,8 @@ input_text = "A system that monitors patient health in real-time, sending alerts
 
 # Qwen25_5B, QwenInstruct, Llama3_2_3B_Instruct, Gemma2B
 [model_use_case]
-ModelUseCase = ["Llama3_2_3B_Instruct"]
+ModelUseCase = ["Gemma2B"]
 
 # Qwen25_5B, QwenInstruct, Llama3_2_3B_Instruct, Gemma2B
 [UML]
-ModelUML = ["Llama3_2_3B_Instruct"]
+ModelUML = ["Gemma2B"]

@@ -181,8 +181,11 @@ class Gemma2B:
             {"role": "user", "content": user_prompt},
         ]
 
-        if hasattr(self.tokenizer, "apply_chat_template"):
-            return self.tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+        if getattr(self.tokenizer, "chat_template", None):
+            try:
+                return self.tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+            except Exception:
+                pass
 
         return f"System: {system_prompt}\nUser: {user_prompt}\nAssistant:"
 
@@ -208,7 +211,7 @@ class Gemma2B:
         if self.device == "cuda":
             torch.cuda.empty_cache()
 
-        print("\nModel Llama3_2_3B_Instruct unloaded and memory freed")
+        print("\nModel Gemma2B unloaded and memory freed")
 
     def __del__(self):
         try:
