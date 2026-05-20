@@ -4,8 +4,16 @@ import tomli as tomllib
 with open("./config.toml", "rb") as file:
     text = tomllib.load(file)["use_case"]["input_text"]
 
-def run_use_case(text: str = text, model_cls=Qwen25_5B):
+# Mapa de nomes de modelos para classes
+MODEL_MAP = {
+    "Qwen25_5B": Qwen25_5B
+}
+
+def run_use_case(text: str = text, model_name: str = "Qwen25_5B"):
+	if model_name not in MODEL_MAP:
+		raise ValueError(f"Model '{model_name}' not found. Available models: {list(MODEL_MAP.keys())}")
 	
+	model_cls = MODEL_MAP[model_name]
 	model = model_cls()
 
 	print(f"\nInput Text:\n{text}\n")
