@@ -31,12 +31,12 @@ class Gemma2B:
         self.prompt_template = self._load_prompt_template()
 
         print(f"Loading model {model_name}...")
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name, use_auth_token=self.hf_token)
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name, token=self.hf_token)
         self.model = AutoModelForCausalLM.from_pretrained(
             model_name,
             torch_dtype=torch.float16 if self.device == "cuda" else torch.float32,
             device_map=self.device,
-            use_auth_token=self.hf_token,
+            token=self.hf_token,
         )
         self.model.to(self.device)
         self.model.eval()
