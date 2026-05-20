@@ -158,11 +158,17 @@ class PipelineLogger:
         start_time = self.stages[stage_name]["start_time"]
         duration = (end_time - start_time).total_seconds()
 
-        peak_gpu_mb = end_resources.get("gpu_allocated_mb", 0)
+        peak_gpu_mb = end_resources.get("gpu_peak_allocated_mb", 0)
+        peak_gpu_reserved_mb = end_resources.get("gpu_peak_reserved_mb", 0)
+        end_gpu_allocated_mb = end_resources.get("gpu_allocated_mb", 0)
+        end_gpu_reserved_mb = end_resources.get("gpu_reserved_mb", 0)
 
         self.stages[stage_name].update({
             "duration_seconds": round(duration, 2),
             "peak_gpu_mb": peak_gpu_mb,
+            "peak_gpu_reserved_mb": peak_gpu_reserved_mb,
+            "end_gpu_allocated_mb": end_gpu_allocated_mb,
+            "end_gpu_reserved_mb": end_gpu_reserved_mb,
             "end_cpu_percent": end_resources.get("cpu_percent", 0),
             "status": "success" if success else "failed",
             "output_preview": (output[:100] + "...") if output and len(output) > 100 else output,

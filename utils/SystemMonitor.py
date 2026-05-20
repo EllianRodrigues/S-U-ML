@@ -83,14 +83,20 @@ class SystemMonitor:
             try:
                 snapshot["gpu_allocated_mb"] = round(torch.cuda.memory_allocated(0) / (1024 ** 2), 2)
                 snapshot["gpu_reserved_mb"] = round(torch.cuda.memory_reserved(0) / (1024 ** 2), 2)
+                snapshot["gpu_peak_allocated_mb"] = round(torch.cuda.max_memory_allocated(0) / (1024 ** 2), 2)
+                snapshot["gpu_peak_reserved_mb"] = round(torch.cuda.max_memory_reserved(0) / (1024 ** 2), 2)
                 snapshot["gpu_free_mb"] = round((self.total_vram_gb * 1024) - snapshot["gpu_allocated_mb"], 2)
             except Exception:
                 snapshot["gpu_allocated_mb"] = None
                 snapshot["gpu_reserved_mb"] = None
+                snapshot["gpu_peak_allocated_mb"] = None
+                snapshot["gpu_peak_reserved_mb"] = None
                 snapshot["gpu_free_mb"] = None
         else:
             snapshot["gpu_allocated_mb"] = 0
             snapshot["gpu_reserved_mb"] = 0
+            snapshot["gpu_peak_allocated_mb"] = 0
+            snapshot["gpu_peak_reserved_mb"] = 0
             snapshot["gpu_free_mb"] = 0
 
         # CPU usage (%)
