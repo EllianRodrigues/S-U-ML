@@ -3,3 +3,4 @@ transformers==4.45.2
 accelerate==1.13.0
 tomli==2.4.1
 sentence-transformers==5.5.0
+python-dotenv==1.0.0

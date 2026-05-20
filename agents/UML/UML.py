@@ -1,9 +1,11 @@
 from models.uml_generation.Qwen2_5_3B_Instruct import QwenInstruct
 from models.uml_generation.Qwen2_5_5B import Qwen25_5B
+from models.uml_generation.Llama3_2_3B_Instruct import Llama3_2_3B_Instruct
 
 MODEL_MAP = {
     "QwenInstruct": QwenInstruct,
     "Qwen25_5B": Qwen25_5B,
+    "Llama3_2_3B_Instruct": Llama3_2_3B_Instruct,
 }
 
 def run_uml(use_case: str, model_name: str = "QwenInstruct"):
