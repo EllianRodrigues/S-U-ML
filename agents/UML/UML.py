@@ -1,8 +1,9 @@
 from models.uml_generation.Qwen2_5_3B_Instruct import QwenInstruct
+from models.uml_generation.Qwen2_5_5B import Qwen25_5B
 
-# Mapa de nomes de modelos para classes
 MODEL_MAP = {
-    "QwenInstruct": QwenInstruct
+    "QwenInstruct": QwenInstruct,
+    "Qwen25_5B": Qwen25_5B,
 }
 
 def run_uml(use_case: str, model_name: str = "QwenInstruct"):

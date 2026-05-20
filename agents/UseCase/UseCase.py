@@ -5,7 +5,6 @@ import tomli as tomllib
 with open("./config.toml", "rb") as file:
     text = tomllib.load(file)["use_case"]["input_text"]
 
-# Mapa de nomes de modelos para classes
 MODEL_MAP = {
 	"Qwen25_5B": Qwen25_5B,
 	"QwenInstruct": QwenInstruct,
