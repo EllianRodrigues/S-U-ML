@@ -1,10 +1,10 @@
 [use_case]
 input_text = "A system that monitors patient health in real-time, sending alerts to doctors when abnormal values are detected."
 
-# Qwen25_5B, QwenInstruct, Llama3_2_3B_Instruct, Gemma2B
+# Use ["Qwen25_5B"] or ["QwenInstruct"] or ["Llama3_2_3B_Instruct"] or ["Gemma2B"] or all
 [model_use_case]
-ModelUseCase = ["Llama3_2_3B_Instruct"]
+ModelUseCase = ["Qwen25_5B", "QwenInstruct", "Llama3_2_3B_Instruct", "Gemma2B"]
 
-# Qwen25_5B, QwenInstruct, Llama3_2_3B_Instruct, Gemma2B
+# Use ["Qwen25_5B"] or ["QwenInstruct"] or ["Llama3_2_3B_Instruct"] or ["Gemma2B"] or all
 [UML]
-ModelUML = ["Llama3_2_3B_Instruct"]
+ModelUML = ["Qwen25_5B", "QwenInstruct", "Llama3_2_3B_Instruct", "Gemma2B"]
