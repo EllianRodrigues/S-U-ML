@@ -1,8 +1,9 @@
 [use_case]
 input_text = "A system that monitors patient health in real-time, sending alerts to doctors when abnormal values are detected."
 
+# Qwen25_5B, QwenInstruct
 [model_use_case]
-ModelUseCase = ["Qwen25_5B"]
+ModelUseCase = ["QwenInstruct"]
 
 [UML]
 ModelUML = ["QwenInstruct"]
