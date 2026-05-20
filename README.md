@@ -62,7 +62,7 @@ Note on API keys / `.env`:
 Some models (for example the Llama and Gemma wrappers) require authentication tokens to be downloaded or accessed. Create a `.env` file in the project root and add your token (the repo includes `.env.example`). Use the `HF_TOKEN` environment variable (or `LLAMA_API_KEY` if you prefer). Example:
 
 ```powershell
-HF_TOKEN= your token
+HF_TOKEN = your token
 ```
 
 ## Tips for Experimentation
