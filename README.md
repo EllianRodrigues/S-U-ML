@@ -7,7 +7,7 @@ The main pipeline is: text -> use case -> UML -> text -> comparison with the ori
 
 ## Repository Structure
 
-- **models/**: model wrappers and utilities grouped by task (examples: [models/uml_generation/Qwen2_5_3B_Instruct.py](models/uml_generation/Qwen2_5_3B_Instruct.py), [models/requirement_extraction/Qwen2_5_5B.py](models/requirement_extraction/Qwen2_5_5B.py)). More models will be added over time.
+- **models/**: model wrappers and utilities grouped by task (examples: [models/uml_generation/Qwen2_5_3B_Instruct.py](models/uml_generation/Qwen2_5_3B_Instruct.py), [models/requirement_extraction/Qwen2_5_5B.py](models/requirement_extraction/Qwen2_5_5B.py)). More models can be added over time.
 - **agents/**: orchestration agents that call models, apply prompts, and perform post-processing (example: [agents/UML/UML.py](agents/UML/UML.py)).
 - **prompts/**: prompt templates used by agents and models; edit these JSON files to change behavior without touching code (example: [prompts/UML.json](prompts/UML.json)).
 - **config.toml**: initial input text and basic pipeline options.
@@ -32,7 +32,7 @@ The objective is to measure which model combinations produce the most semantical
 
 ## Model Combinations (Config-Driven)
 
-The pipeline now runs all possible combinations between the models listed in `config.toml`:
+The pipeline runs all possible combinations between the models listed in `config.toml`:
 
 - `[model_use_case].ModelUseCase` defines the list of models for use-case extraction.
 - `[UML].ModelUML` defines the list of models for UML generation.
