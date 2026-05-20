@@ -1,6 +1,7 @@
 from models.requirement_extraction.Qwen2_5_5B import Qwen25_5B
 from models.requirement_extraction.Qwen2_5_3B_Instruct import QwenInstruct
 from models.requirement_extraction.Llama3_2_3B_Instruct import Llama3_2_3B_Instruct
+from models.requirement_extraction.Gemma2B import Gemma2B
 import tomli as tomllib
 
 with open("./config.toml", "rb") as file:
@@ -10,6 +11,7 @@ MODEL_MAP = {
 	"Qwen25_5B": Qwen25_5B,
 	"QwenInstruct": QwenInstruct,
 	"Llama3_2_3B_Instruct": Llama3_2_3B_Instruct,
+	"Gemma2B": Gemma2B,
 }
 
 def run_use_case(text: str = text, model_name: str = "Qwen25_5B"):
