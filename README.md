@@ -30,11 +30,29 @@ The main pipeline is: text -> use case -> UML -> text -> comparison with the ori
 
 The objective is to measure which model combinations produce the most semantically faithful outputs and which consume fewer resources (tokens, time).
 
-## Metrics and Future Extensions
+## Model Combinations (Config-Driven)
 
-- Sentence comparison currently uses `sentence-transformers` (for example `all-MiniLM-L6-v2`). The pipeline converts the original and reconstructed texts into embeddings and computes cosine similarity (score between 0 and 1; higher means more similar). Euclidean distance or thresholding can also be used.
-- We plan to add more metrics such as token usage, inference time, and aggregated scores exportable for analysis.
-- `config.toml` will be extended to allow selecting per-stage models (e.g., a specific model for use-case extraction and another for UML generation) and other runtime options.
+The pipeline now runs all possible combinations between the models listed in `config.toml`:
+
+- `[model_use_case].ModelUseCase` defines the list of models for use-case extraction.
+- `[UML].ModelUML` defines the list of models for UML generation.
+
+Execution uses the Cartesian product between both lists.
+
+Example:
+
+- 4 use-case models x 4 UML models = 16 combinations
+- 2 use-case models x 3 UML models = 6 combinations
+
+To test fewer combinations, just reduce the lists in `config.toml`.
+
+## Metrics and Outputs
+
+- Sentence comparison uses `sentence-transformers` (for example `all-MiniLM-L6-v2`) and computes semantic similarity with cosine-based metrics.
+- One run generates:
+	- a consolidated CSV in `runs/` with one row per model combination
+	- a detailed execution log in `logs/` with captured prints and stage details
+- The CSV includes model pair metadata, stage durations, CPU/GPU usage snapshots, semantic score, prompts, and hardware info.
 
 ## How to Run
 
@@ -49,27 +67,62 @@ pip install -r requirements.txt
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
 ```
 
-2. Run the pipeline:
+2. Configure models in `config.toml`.
+
+You can provide one model or multiple models in each list.
+
+Example (full 4x4):
+
+```toml
+[model_use_case]
+ModelUseCase = ["Qwen25_5B", "QwenInstruct", "Llama3_2_3B_Instruct", "Gemma2B"]
+
+[UML]
+ModelUML = ["Qwen25_5B", "QwenInstruct", "Llama3_2_3B_Instruct", "Gemma2B"]
+```
+
+3. Run the pipeline:
 
 ```powershell
 python .\main.py
 ```
 
-This executes the pipeline with the currently configured agents and models.
+This executes all configured model combinations.
 
 Note on API keys / `.env`:
 
-Some models (for example the Llama and Gemma wrappers) require authentication tokens to be downloaded or accessed. Create a `.env` file in the project root and add your token (the repo includes `.env.example`). Use the `HF_TOKEN` environment variable (or `LLAMA_API_KEY` if you prefer). Example:
+`Llama3_2_3B_Instruct` and `Gemma2B` require a Hugging Face token.
+
+Create a `.env` file in the project root (the repo includes `.env.example`) and define:
+
+```dotenv
+HF_TOKEN=your_huggingface_token_here
+```
+
+Without this token, those authenticated models may fail to load.
+
+## Analyze Results with Streamlit
+
+After generating CSV files in `runs/`, open the analysis dashboard:
 
 ```powershell
-HF_TOKEN = your token
+streamlit run .\streamlit_app.py
 ```
+
+The dashboard supports:
+
+- loading the latest CSV automatically (or manual upload)
+- filters by combination, success status, and semantic score range
+- views for semantic score, stage timing, CPU/GPU/VRAM usage
+- charts such as semantic vs consumption and semantic vs consumption vs time
+- download of filtered data for further analysis
 
 ## Tips for Experimentation
 
 - Edit prompts in `prompts/` to change behavior without touching code.
-- Add new model wrappers under `models/` and integrate them via `agents/` or `main.py`.
-- When `config.toml` supports it, select different models per pipeline stage to compare combinations.
+- Add new model wrappers under `models/` and register them in the corresponding agent MODEL_MAP.
+- Start small (e.g., 2x2) to validate outputs and runtime, then scale to 4x4.
+- Use `logs/` to investigate failures and `runs/` for aggregate comparisons.
 
 
 
