@@ -1,5 +1,5 @@
 
-## S-U-LM: Evaluation of Semantic Preservation in Multi-Agent Pipelines for UML
+## S-U-LM: Evaluation of Semantic Preservation in Multi-Agent Pipelines for UML With Slm
 
 This project evaluates semantic preservation across small language models in a multi-agent pipeline that generates and interprets UML.
 
@@ -41,8 +41,8 @@ The objective is to measure which model combinations produce the most semantical
 1. Create and activate the environment (Conda recommended):
 
 ```bash
-conda create -n amaspput python=3.10 -y
-conda activate amaspput
+conda create -n sulm python=3.10 -y
+conda activate sulm
 pip install -r requirements.txt
 
 # (Optional) Install PyTorch with CUDA if you have an NVIDIA GPU
